@@ -173,6 +173,22 @@ export function RentabilidadManagement({ onBack }) {
   const avgImporteComunidad = personComunidadesCount > 0 ? (personFacturacion / personComunidadesCount) : 0;
   const avgImporteVecino = personVecinos > 0 ? (personFacturacion / personVecinos) : 0;
 
+  // Gestores ranking calculations
+  const gestoresBilling = gestoresList.map(g => {
+    const communities = comunidades.filter(c => c.gestorId === g.id);
+    const billing = communities.reduce((sum, c) => sum + (c.total || 0), 0);
+    const pct = totalFacturacion > 0 ? (billing / totalFacturacion) * 100 : 0;
+    return { ...g, billing, pct };
+  }).sort((a, b) => b.billing - a.billing);
+
+  // Contables ranking calculations
+  const contablesBilling = contablesList.map(item => {
+    const communities = comunidades.filter(c => c.contableId === item.id);
+    const billing = communities.reduce((sum, c) => sum + (c.total || 0), 0);
+    const pct = totalFacturacion > 0 ? (billing / totalFacturacion) * 100 : 0;
+    return { ...item, billing, pct };
+  }).sort((a, b) => b.billing - a.billing);
+
   return (
     <div className="personal-panel w-full" style={{ animation: 'fadeIn 0.5s ease' }}>
       
@@ -387,7 +403,62 @@ export function RentabilidadManagement({ onBack }) {
             </div>
           </div>
 
-          {/* Card 2: Rendimiento por Empleado */}
+          {/* Card 2: Comparativa de Facturación (Horizontal Bar Charts) */}
+          <div className="sidebar-card">
+            <div className="sidebar-card-header mb-4">
+              <TrendingUp size={20} style={{ color: 'var(--gold-dark)' }} />
+              <h3 className="font-serif text-base font-bold m-0" style={{ color: 'var(--primary-medium)' }}>
+                Comparativa de Facturación
+              </h3>
+            </div>
+            
+            <div className="sidebar-divider mb-4"></div>
+
+            {/* Gestores section */}
+            <h4 className="metric-label-small mb-3" style={{ color: 'var(--primary-light)', borderBottom: '1px solid var(--cream-dark)', paddingBottom: '4px' }}>Gestores</h4>
+            <div className="flex flex-col gap-3 mb-5">
+              {gestoresBilling.map(item => (
+                <div key={item.id} className="bar-chart-row">
+                  <div className="flex justify-between items-center text-xs mb-1 font-medium">
+                    <span style={{ color: 'var(--text-dark)' }}>{item.nombre}</span>
+                    <span className="text-muted" style={{ fontSize: '11px', whiteSpace: 'nowrap' }}>
+                      {item.billing.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} € ({item.pct.toFixed(1)}%)
+                    </span>
+                  </div>
+                  <div className="progress-bar-bg" style={{ height: '8px' }}>
+                    <div className="progress-bar-fill" style={{ width: `${item.pct}%`, height: '100%' }}></div>
+                  </div>
+                </div>
+              ))}
+              {gestoresBilling.length === 0 && (
+                <p className="text-xs text-muted m-0 italic">No hay gestores registrados o asignados.</p>
+              )}
+            </div>
+
+            {/* Contables section */}
+            <h4 className="metric-label-small mb-3" style={{ color: 'var(--primary-light)', borderBottom: '1px solid var(--cream-dark)', paddingBottom: '4px' }}>Contables</h4>
+            <div className="flex flex-col gap-3">
+              {contablesBilling.map(item => (
+                <div key={item.id} className="bar-chart-row">
+                  <div className="flex justify-between items-center text-xs mb-1 font-medium">
+                    <span style={{ color: 'var(--text-dark)' }}>{item.nombre}</span>
+                    <span className="text-muted" style={{ fontSize: '11px', whiteSpace: 'nowrap' }}>
+                      {item.billing.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} € ({item.pct.toFixed(1)}%)
+                    </span>
+                  </div>
+                  <div className="progress-bar-bg" style={{ height: '8px' }}>
+                    <div className="progress-bar-fill" style={{ width: `${item.pct}%`, height: '100%', background: 'linear-gradient(90deg, var(--primary-light) 0%, var(--primary-dark) 100%)' }}></div>
+                  </div>
+                </div>
+              ))}
+              {contablesBilling.length === 0 && (
+                <p className="text-xs text-muted m-0 italic">No hay contables registrados o asignados.</p>
+              )}
+            </div>
+
+          </div>
+
+          {/* Card 3: Rendimiento por Empleado */}
           <div className="sidebar-card">
             <div className="sidebar-card-header mb-4">
               <UserCheck size={20} style={{ color: 'var(--gold-dark)' }} />
@@ -421,54 +492,66 @@ export function RentabilidadManagement({ onBack }) {
             {selectedPerson ? (
               <div className="animate-fade-in">
                 
-                {/* Circular Chart & Brief */}
-                <div className="flex items-center gap-4 mb-4" style={{ backgroundColor: 'var(--cream-light)', padding: '12px', borderRadius: '12px', border: '1px solid var(--cream-dark)' }}>
-                  <div className="flex-shrink-0" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    {/* SVG Progress Wheel */}
-                    <svg width="70" height="70" viewBox="0 0 100 100">
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        fill="transparent"
-                        stroke="var(--cream-dark)"
-                        strokeWidth="8"
-                      />
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        fill="transparent"
-                        stroke="var(--gold-dark)"
-                        strokeWidth="8"
-                        strokeDasharray={251.2}
-                        strokeDashoffset={251.2 - (percentage / 100) * 251.2}
-                        strokeLinecap="round"
-                        style={{
-                          transition: 'stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-                          transform: 'rotate(-90deg)',
-                          transformOrigin: '50% 50%',
-                        }}
-                      />
-                      <text
-                        x="50"
-                        y="56"
-                        textAnchor="middle"
-                        className="font-bold font-sans"
-                        style={{ fontSize: '16px', fill: 'var(--primary-dark)', fontWeight: '700' }}
-                      >
-                        {percentage.toFixed(1)}%
-                      </text>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 className="font-serif text-sm font-bold mb-1" style={{ color: 'var(--primary-dark)' }}>
-                      {selectedPerson.nombre}
-                    </h4>
-                    <span className={`badge-type ${selectedPerson.tipo.replace('/', '-')}`} style={{ padding: '2px 6px', fontSize: '10px' }}>
+                {/* Circular Chart (Large centered - 80% container width) */}
+                <div className="flex flex-col items-center justify-center gap-4 mb-4" style={{ backgroundColor: 'var(--cream-light)', padding: '20px 12px', borderRadius: '12px', border: '1px solid var(--cream-dark)', textAlign: 'center' }}>
+                  
+                  {/* SVG Progress Wheel scaling to 80% of width */}
+                  <svg viewBox="0 0 100 100" style={{ width: '80%', maxWidth: '200px', height: 'auto' }}>
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="40"
+                      fill="transparent"
+                      stroke="var(--cream-dark)"
+                      strokeWidth="6"
+                    />
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="40"
+                      fill="transparent"
+                      stroke="var(--gold-dark)"
+                      strokeWidth="6"
+                      strokeDasharray={251.2}
+                      strokeDashoffset={251.2 - (percentage / 100) * 251.2}
+                      strokeLinecap="round"
+                      style={{
+                        transition: 'stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+                        transform: 'rotate(-90deg)',
+                        transformOrigin: '50% 50%',
+                      }}
+                    />
+                    
+                    {/* Centered text in SVG */}
+                    <text
+                      x="50"
+                      y="45"
+                      textAnchor="middle"
+                      className="font-bold font-sans"
+                      style={{ fontSize: '15px', fill: 'var(--primary-dark)', fontWeight: '700' }}
+                    >
+                      {percentage.toFixed(1)}%
+                    </text>
+                    <text
+                      x="50"
+                      y="60"
+                      textAnchor="middle"
+                      className="font-serif"
+                      style={{ fontSize: '8px', fill: 'var(--primary-medium)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                    >
+                      {selectedPerson.nombre.split(' ')[0]}
+                    </text>
+                    <text
+                      x="50"
+                      y="72"
+                      textAnchor="middle"
+                      className="font-sans"
+                      style={{ fontSize: '6px', fill: 'var(--text-muted)', fontWeight: '500', textTransform: 'uppercase', letterSpacing: '0.15em' }}
+                    >
                       {selectedPerson.tipo}
-                    </span>
-                  </div>
+                    </text>
+                  </svg>
+                  
                 </div>
 
                 <div className="sidebar-divider mb-4"></div>
