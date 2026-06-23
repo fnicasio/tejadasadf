@@ -47,7 +47,7 @@ export function ComunidadesManagement({ onBack }) {
   
   const [comunidadName, setComunidadName] = useState('');
   const [bi, setBi] = useState('');
-  const [ivaPercent, setIvaPercent] = useState('21'); // standard 21%
+
   const [nVecinos, setNVecinos] = useState('');
   const [hasGarajes, setHasGarajes] = useState(false);
   const [hasPiscina, setHasPiscina] = useState(false);
@@ -144,11 +144,10 @@ export function ComunidadesManagement({ onBack }) {
     }
   };
 
-  // Form calculated values in real time
+  // Form calculated values in real time (fixed to standard 21% IVA)
   const calculatedIvaValue = () => {
     const base = parseFloat(bi) || 0;
-    const percent = parseFloat(ivaPercent) || 0;
-    return parseFloat((base * (percent / 100)).toFixed(2));
+    return parseFloat((base * 0.21).toFixed(2));
   };
 
   const calculatedTotalValue = () => {
@@ -162,7 +161,6 @@ export function ComunidadesManagement({ onBack }) {
     setEditingCommunity(null);
     setComunidadName('');
     setBi('');
-    setIvaPercent('21');
     setNVecinos('');
     setHasGarajes(false);
     setHasPiscina(false);
@@ -176,7 +174,6 @@ export function ComunidadesManagement({ onBack }) {
     setEditingCommunity(comm);
     setComunidadName(comm.comunidad || '');
     setBi(comm.bi?.toString() || '');
-    setIvaPercent(comm.iva_percent?.toString() || '21');
     setNVecinos(comm.n_vecinos?.toString() || '');
     setHasGarajes(!!comm.garajes);
     setHasPiscina(!!comm.piscina);
@@ -215,7 +212,7 @@ export function ComunidadesManagement({ onBack }) {
     const data = {
       comunidad: comunidadName.trim(),
       bi: parsedBi,
-      iva_percent: parseFloat(ivaPercent),
+      iva_percent: 21,
       iva: ivaAmt,
       total: totalAmt,
       n_vecinos: parsedNeighbors,
@@ -304,20 +301,21 @@ export function ComunidadesManagement({ onBack }) {
         // Loop over the data rows (skipping header)
         for (let i = 1; i < lines.length; i++) {
           const cols = lines[i].split(separator);
-          if (cols.length < 4 || !cols[0].trim()) continue; // Skip incomplete lines
+          if (cols.length < 3 || !cols[0].trim()) continue; // Skip incomplete lines
 
           const comunidadNameCSV = cols[0].trim();
           const biCSV = parseFloat(cols[1]?.replace(',', '.')) || 0;
-          const ivaPercentCSV = parseFloat(cols[2]?.replace('%', '')?.replace(',', '.')) || 21;
-          const nVecinosCSV = parseInt(cols[3]) || 0;
+          const nVecinosCSV = parseInt(cols[2]) || 0;
           
-          const garajesCSV = parseBool(cols[4]);
-          const piscinaCSV = parseBool(cols[5]);
-          const pistasCSV = parseBool(cols[6]);
-          const salaCSV = parseBool(cols[7]);
+          const garajesCSV = parseBool(cols[3]);
+          const piscinaCSV = parseBool(cols[4]);
+          const pistasCSV = parseBool(cols[5]);
+          const salaCSV = parseBool(cols[6]);
+
+          const ivaPercentCSV = 21; // standard 21% rate
 
           // Calculate totals
-          const calculatedIva = parseFloat((biCSV * (ivaPercentCSV / 100)).toFixed(2));
+          const calculatedIva = parseFloat((biCSV * 0.21).toFixed(2));
           const calculatedTotal = parseFloat((biCSV + calculatedIva).toFixed(2));
 
           // Save directly to Firestore
@@ -660,32 +658,16 @@ export function ComunidadesManagement({ onBack }) {
                   />
                 </div>
 
-                {/* IVA selector */}
-                <div className="form-group">
-                  <label className="form-label">IVA (%)</label>
-                  <select
-                    className="form-input"
-                    style={{ paddingLeft: '16px', appearance: 'auto', background: 'white' }}
-                    value={ivaPercent}
-                    onChange={(e) => setIvaPercent(e.target.value)}
-                    disabled={isSaving}
-                  >
-                    <option value="21">21% General</option>
-                    <option value="10">10% Reducido</option>
-                    <option value="4">4% Superreducido</option>
-                    <option value="0">0% Exento</option>
-                  </select>
-                </div>
-
-                {/* Dynamic read-only computed values */}
+                {/* Dynamic read-only computed Cuota IVA box */}
                 <div className="form-group" style={{ background: 'var(--cream-light)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--cream-dark)' }}>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cuota IVA calculada</span>
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cuota IVA (21%)</span>
                   <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--primary-light)' }}>
                     {calculatedIvaValue().toLocaleString('es-ES', { minimumFractionDigits: 2 })} €
                   </span>
                 </div>
 
-                <div className="form-group" style={{ background: 'var(--cream-light)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--cream-dark)' }}>
+                {/* Dynamic read-only computed Total box */}
+                <div className="form-group" style={{ gridColumn: 'span 2', background: 'var(--cream-light)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--cream-dark)' }}>
                   <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Presupuestado (Con IVA)</span>
                   <span style={{ fontSize: '16px', fontWeight: '700', color: 'var(--primary-medium)' }}>
                     {calculatedTotalValue().toLocaleString('es-ES', { minimumFractionDigits: 2 })} €
