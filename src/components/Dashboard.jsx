@@ -3,9 +3,11 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import Logo from './Logo';
 import PersonalManagement from './PersonalManagement';
+import ComunidadesManagement from './ComunidadesManagement';
 import { 
   LogOut, 
   Building2, 
+  Home,
   UserCheck 
 } from 'lucide-react';
 
@@ -65,7 +67,7 @@ export function Dashboard() {
 
       {/* Main Content Area */}
       <main className="dashboard-main">
-        {currentView === 'home' ? (
+        {currentView === 'home' && (
           <div className="welcome-card">
             <span className="waving-hand" role="img" aria-label="waving hand">👋</span>
             <h1 className="welcome-title">Bienvenido al Panel de Control</h1>
@@ -74,13 +76,12 @@ export function Dashboard() {
               Selecciona el módulo de gestión que deseas operar.
             </p>
 
-            {/* Single Card: Gestión de Personal */}
-            <div className="info-grid" style={{ display: 'flex', justifyContent: 'center' }}>
+            {/* Two Cards: Gestión de Personal and Gestión de Comunidades */}
+            <div className="info-grid">
               <div 
                 className="info-item" 
                 style={{ 
                   cursor: 'pointer', 
-                  maxWidth: '360px', 
                   border: '1.5px solid var(--cream-dark)',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
@@ -92,10 +93,32 @@ export function Dashboard() {
                   Administración de gestores y contables de la oficina, asignación de roles y control de comunidades.
                 </p>
               </div>
+
+              <div 
+                className="info-item" 
+                style={{ 
+                  cursor: 'pointer', 
+                  border: '1.5px solid var(--cream-dark)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+                onClick={() => setCurrentView('comunidades')}
+              >
+                <Home className="info-item-icon" size={32} />
+                <h4 className="info-item-title" style={{ fontSize: '18px', marginTop: '10px' }}>Gestión de Comunidades</h4>
+                <p className="info-item-desc" style={{ fontSize: '14px', marginTop: '8px' }}>
+                  Configuración e información de comunidades de vecinos, presupuestos de bases imponibles y equipamiento.
+                </p>
+              </div>
             </div>
           </div>
-        ) : (
+        )}
+
+        {currentView === 'personal' && (
           <PersonalManagement onBack={() => setCurrentView('home')} />
+        )}
+
+        {currentView === 'comunidades' && (
+          <ComunidadesManagement onBack={() => setCurrentView('home')} />
         )}
       </main>
 

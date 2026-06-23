@@ -865,4 +865,49 @@ body {
   margin: 0 auto;
 }
 
+/* Interactive Table Column Sorting Headers */
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.sortable-header:hover {
+  background-color: rgba(194, 157, 91, 0.1) !important;
+  color: var(--primary-dark) !important;
+}
+
+.sort-icon {
+  color: var(--text-muted);
+  opacity: 0.35;
+  transition: all 0.2s ease;
+}
+
+.sortable-header:hover .sort-icon {
+  opacity: 0.8;
+  color: var(--gold-dark);
+}
+
+.sort-icon.active {
+  color: var(--gold-dark) !important;
+  opacity: 1 !important;
+}
+
+.table-filters-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  border-top: 1px solid var(--cream-dark);
+  padding-top: 16px;
+}
+
+.search-box-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+
 
