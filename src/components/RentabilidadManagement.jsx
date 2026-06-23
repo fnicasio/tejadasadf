@@ -29,6 +29,7 @@ export function RentabilidadManagement({ onBack }) {
   // Key format: `${communityId}-${role}` where role is 'gestor' or 'contable'
   // Value: 'saving' | 'success' | 'error'
   const [savingState, setSavingState] = useState({});
+  const [selectedPersonId, setSelectedPersonId] = useState('');
 
   // Sync communities and personal from Firestore
   useEffect(() => {
@@ -158,6 +159,19 @@ export function RentabilidadManagement({ onBack }) {
   const totalComunidades = comunidades.length;
   const totalVecinos = comunidades.reduce((sum, c) => sum + (c.n_vecinos || 0), 0);
   const totalFacturacion = comunidades.reduce((sum, c) => sum + (c.total || 0), 0);
+
+  // Selected personal analysis calculations
+  const selectedPerson = personal.find(p => p.id === selectedPersonId);
+  const personCommunities = selectedPersonId 
+    ? comunidades.filter(c => c.gestorId === selectedPersonId || c.contableId === selectedPersonId)
+    : [];
+  const personComunidadesCount = personCommunities.length;
+  const personVecinos = personCommunities.reduce((sum, c) => sum + (c.n_vecinos || 0), 0);
+  const personFacturacion = personCommunities.reduce((sum, c) => sum + (c.total || 0), 0);
+  
+  const percentage = totalFacturacion > 0 ? (personFacturacion / totalFacturacion) * 100 : 0;
+  const avgImporteComunidad = personComunidadesCount > 0 ? (personFacturacion / personComunidadesCount) : 0;
+  const avgImporteVecino = personVecinos > 0 ? (personFacturacion / personVecinos) : 0;
 
   return (
     <div className="personal-panel w-full" style={{ animation: 'fadeIn 0.5s ease' }}>
@@ -322,53 +336,187 @@ export function RentabilidadManagement({ onBack }) {
         </div>
 
         {/* Right Column (33% on desktop) - Dashboard Summary */}
-        <div className="rentabilidad-sidebar-placeholder">
+        <div className="rentabilidad-sidebar-placeholder" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          
+          {/* Card 1: Resumen General */}
           <div className="sidebar-card">
-            <div className="sidebar-card-header mb-6">
-              <TrendingUp size={24} style={{ color: 'var(--gold-dark)' }} />
-              <h3 className="font-serif text-lg font-bold m-0" style={{ color: 'var(--primary-medium)' }}>
+            <div className="sidebar-card-header mb-4">
+              <TrendingUp size={20} style={{ color: 'var(--gold-dark)' }} />
+              <h3 className="font-serif text-base font-bold m-0" style={{ color: 'var(--primary-medium)' }}>
                 Resumen de Control
               </h3>
             </div>
             
-            <div className="sidebar-divider mb-6"></div>
+            <div className="sidebar-divider mb-4"></div>
 
             {/* KPI Cards / Metrics */}
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
               
-              <div className="metric-box flex items-center gap-4 p-4 rounded-xl" style={{ backgroundColor: 'var(--cream-light)', border: '1px solid var(--cream-dark)' }}>
-                <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(194, 157, 91, 0.15)', color: 'var(--gold-dark)', display: 'flex', alignItems: 'center' }}>
-                  <Users size={20} />
+              <div className="metric-box flex items-center gap-4 p-4 rounded-xl">
+                <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(194, 157, 91, 0.12)', color: 'var(--gold-dark)', display: 'flex', alignItems: 'center' }}>
+                  <Users size={18} />
                 </div>
                 <div>
-                  <div className="text-xs uppercase tracking-wide font-semibold text-muted mb-1">Total Comunidades</div>
-                  <div className="text-xl font-bold" style={{ color: 'var(--primary-dark)', fontFamily: 'var(--font-sans)' }}>{totalComunidades}</div>
+                  <div className="metric-label-small">Total Comunidades</div>
+                  <div className="metric-value-large">{totalComunidades.toLocaleString('es-ES')}</div>
                 </div>
               </div>
 
-              <div className="metric-box flex items-center gap-4 p-4 rounded-xl" style={{ backgroundColor: 'var(--cream-light)', border: '1px solid var(--cream-dark)' }}>
-                <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(90, 63, 47, 0.1)', color: 'var(--primary-light)', display: 'flex', alignItems: 'center' }}>
-                  <UserCheck size={20} />
+              <div className="metric-box flex items-center gap-4 p-4 rounded-xl">
+                <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(90, 63, 47, 0.08)', color: 'var(--primary-light)', display: 'flex', alignItems: 'center' }}>
+                  <UserCheck size={18} />
                 </div>
                 <div>
-                  <div className="text-xs uppercase tracking-wide font-semibold text-muted mb-1">Total Vecinos</div>
-                  <div className="text-xl font-bold" style={{ color: 'var(--primary-dark)', fontFamily: 'var(--font-sans)' }}>{totalVecinos}</div>
+                  <div className="metric-label-small">Total Vecinos</div>
+                  <div className="metric-value-large">{totalVecinos.toLocaleString('es-ES')}</div>
                 </div>
               </div>
 
-              <div className="metric-box flex items-center gap-4 p-4 rounded-xl" style={{ backgroundColor: 'var(--cream-light)', border: '1px solid var(--cream-dark)' }}>
-                <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(54, 143, 92, 0.1)', color: 'var(--success)', display: 'flex', alignItems: 'center' }}>
-                  <TrendingUp size={20} style={{ color: 'var(--success)' }} />
+              <div className="metric-box flex items-center gap-4 p-4 rounded-xl">
+                <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(54, 143, 92, 0.08)', color: 'var(--success)', display: 'flex', alignItems: 'center' }}>
+                  <TrendingUp size={18} style={{ color: 'var(--success)' }} />
                 </div>
                 <div>
-                  <div className="text-xs uppercase tracking-wide font-semibold text-muted mb-1">Total Facturación</div>
-                  <div className="text-xl font-bold" style={{ color: 'var(--primary-dark)', fontFamily: 'var(--font-sans)', whiteSpace: 'nowrap' }}>
+                  <div className="metric-label-small">Total Facturación</div>
+                  <div className="metric-value-large" style={{ color: 'var(--success)' }}>
                     {totalFacturacion.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                   </div>
                 </div>
               </div>
 
             </div>
+          </div>
+
+          {/* Card 2: Rendimiento por Empleado */}
+          <div className="sidebar-card">
+            <div className="sidebar-card-header mb-4">
+              <UserCheck size={20} style={{ color: 'var(--gold-dark)' }} />
+              <h3 className="font-serif text-base font-bold m-0" style={{ color: 'var(--primary-medium)' }}>
+                Rentabilidad por Empleado
+              </h3>
+            </div>
+            
+            <div className="sidebar-divider mb-4"></div>
+
+            <div className="form-group mb-4">
+              <label className="form-label" htmlFor="personal-select" style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Seleccionar Empleado
+              </label>
+              <div className="input-wrapper">
+                <select
+                  id="personal-select"
+                  className="form-input"
+                  style={{ paddingLeft: '16px', appearance: 'auto', background: 'white', height: '42px', fontSize: '14px', borderRadius: '10px', borderColor: 'rgba(62, 39, 26, 0.15)' }}
+                  value={selectedPersonId}
+                  onChange={(e) => setSelectedPersonId(e.target.value)}
+                >
+                  <option value="">-- Selecciona un empleado --</option>
+                  {personal.map(p => (
+                    <option key={p.id} value={p.id}>{p.nombre} ({p.tipo})</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {selectedPerson ? (
+              <div className="animate-fade-in">
+                
+                {/* Circular Chart & Brief */}
+                <div className="flex items-center gap-4 mb-4" style={{ backgroundColor: 'var(--cream-light)', padding: '12px', borderRadius: '12px', border: '1px solid var(--cream-dark)' }}>
+                  <div className="flex-shrink-0" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    {/* SVG Progress Wheel */}
+                    <svg width="70" height="70" viewBox="0 0 100 100">
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        fill="transparent"
+                        stroke="var(--cream-dark)"
+                        strokeWidth="8"
+                      />
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        fill="transparent"
+                        stroke="var(--gold-dark)"
+                        strokeWidth="8"
+                        strokeDasharray={251.2}
+                        strokeDashoffset={251.2 - (percentage / 100) * 251.2}
+                        strokeLinecap="round"
+                        style={{
+                          transition: 'stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+                          transform: 'rotate(-90deg)',
+                          transformOrigin: '50% 50%',
+                        }}
+                      />
+                      <text
+                        x="50"
+                        y="56"
+                        textAnchor="middle"
+                        className="font-bold font-sans"
+                        style={{ fontSize: '16px', fill: 'var(--primary-dark)', fontWeight: '700' }}
+                      >
+                        {percentage.toFixed(1)}%
+                      </text>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-serif text-sm font-bold mb-1" style={{ color: 'var(--primary-dark)' }}>
+                      {selectedPerson.nombre}
+                    </h4>
+                    <span className={`badge-type ${selectedPerson.tipo.replace('/', '-')}`} style={{ padding: '2px 6px', fontSize: '10px' }}>
+                      {selectedPerson.tipo}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="sidebar-divider mb-4"></div>
+
+                {/* Details Statistics */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex justify-between items-center text-sm" style={{ borderBottom: '1px solid var(--cream-light)', paddingBottom: '8px' }}>
+                    <span className="text-muted font-medium" style={{ fontSize: '13px' }}>Comunidades asignadas:</span>
+                    <span className="font-bold" style={{ color: 'var(--primary-dark)' }}>{personComunidadesCount}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center text-sm" style={{ borderBottom: '1px solid var(--cream-light)', paddingBottom: '8px' }}>
+                    <span className="text-muted font-medium" style={{ fontSize: '13px' }}>Vecinos en total:</span>
+                    <span className="font-bold" style={{ color: 'var(--primary-dark)' }}>{personVecinos.toLocaleString('es-ES')}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center text-sm" style={{ borderBottom: '1px solid var(--cream-light)', paddingBottom: '8px' }}>
+                    <span className="text-muted font-medium" style={{ fontSize: '13px' }}>Importe que maneja:</span>
+                    <span className="font-bold" style={{ color: 'var(--gold-dark)', whiteSpace: 'nowrap' }}>
+                      {personFacturacion.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-sm" style={{ borderBottom: '1px solid var(--cream-light)', paddingBottom: '8px' }}>
+                    <span className="text-muted font-medium" style={{ fontSize: '13px' }}>Media por comunidad:</span>
+                    <span className="font-semibold" style={{ color: 'var(--primary-medium)', whiteSpace: 'nowrap' }}>
+                      {avgImporteComunidad.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted font-medium" style={{ fontSize: '13px' }}>Media por vecino:</span>
+                    <span className="font-semibold" style={{ color: 'var(--primary-medium)', whiteSpace: 'nowrap' }}>
+                      {avgImporteVecino.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+            ) : (
+              <div className="text-center py-6 px-4 rounded-xl" style={{ backgroundColor: 'var(--cream-light)', border: '1px dotted var(--cream-dark)' }}>
+                <Users size={32} className="text-muted mb-2" style={{ opacity: 0.4 }} />
+                <p className="text-muted m-0" style={{ fontSize: '13px', lineHeight: '1.4' }}>
+                  Selecciona un empleado para analizar su impacto en la facturación y su rendimiento operativo.
+                </p>
+              </div>
+            )}
+
           </div>
         </div>
 
