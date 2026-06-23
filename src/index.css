@@ -922,10 +922,24 @@ body {
   align-items: start;
 }
 
+.rentabilidad-container > * {
+  min-width: 0; /* Prevents grid children from expanding past columns width */
+}
+
 @media (min-width: 1024px) {
   .rentabilidad-container {
     grid-template-columns: 2fr 1fr; /* 66% left, 33% right */
   }
+}
+
+.rentabilidad-container .personal-table {
+  font-size: 13px; /* Smaller font size for a cleaner look */
+}
+
+.rentabilidad-container .personal-table th,
+.rentabilidad-container .personal-table td {
+  padding: 10px 12px; /* Compact padding */
+  white-space: nowrap; /* Prevents text and currency symbol wrapping */
 }
 
 .select-inline-table {
