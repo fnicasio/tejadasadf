@@ -388,7 +388,7 @@ export function ComunidadesManagement({ onBack }) {
         )}
 
         {/* Toolbar: Search, Filters, Add & Import */}
-        <div className="table-actions-header flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        <div className="table-actions-header">
           
           {/* Left search input */}
           <div className="search-box-wrapper relative" style={{ flexGrow: 1, maxWidth: '300px' }}>
@@ -417,7 +417,7 @@ export function ComunidadesManagement({ onBack }) {
             <button 
               onClick={handleCSVImportClick} 
               className="btn-signout" 
-              style={{ height: '42px', display: 'flex', alignItems: 'center', gap: '8px' }}
+              style={{ height: '42px', display: 'none', alignItems: 'center', gap: '8px' }}
               disabled={isImporting}
               title="Importa las comunidades cargando un archivo CSV"
             >
