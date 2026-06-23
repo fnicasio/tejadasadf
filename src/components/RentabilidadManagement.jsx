@@ -39,6 +39,8 @@ export function RentabilidadManagement({ onBack }) {
       snapshot.forEach((docSnap) => {
         items.push({ id: docSnap.id, ...docSnap.data() });
       });
+      // Sort alphabetically by community name
+      items.sort((a, b) => (a.comunidad || '').localeCompare(b.comunidad || '', 'es', { sensitivity: 'base' }));
       setComunidades(items);
     }, (error) => {
       console.error("Error syncing comunidades in Rentabilidad:", error);
@@ -220,15 +222,23 @@ export function RentabilidadManagement({ onBack }) {
               <table className="personal-table">
                 <thead>
                   <tr>
-                    <th style={{ width: '40%' }}>Comunidad</th>
-                    <th style={{ width: '30%' }}>Gestor Asignado</th>
-                    <th style={{ width: '30%' }}>Contable Asignado</th>
+                    <th className="sticky-col" style={{ minWidth: '180px' }}>Comunidad</th>
+                    <th style={{ minWidth: '180px' }}>Gestor Asignado</th>
+                    <th style={{ minWidth: '180px' }}>Contable Asignado</th>
+                    <th style={{ minWidth: '100px', textAlign: 'right' }}>BI</th>
+                    <th style={{ minWidth: '85px', textAlign: 'right' }}>IVA</th>
+                    <th style={{ minWidth: '100px', textAlign: 'right' }}>TOTAL</th>
+                    <th style={{ minWidth: '85px', textAlign: 'center' }}>Vecinos</th>
+                    <th style={{ minWidth: '85px', textAlign: 'center' }}>Garajes</th>
+                    <th style={{ minWidth: '85px', textAlign: 'center' }}>Piscina</th>
+                    <th style={{ minWidth: '100px', textAlign: 'center' }}>Pistas Dep.</th>
+                    <th style={{ minWidth: '110px', textAlign: 'center' }}>Sala Gourmet</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredComunidades.map((comm) => (
                     <tr key={comm.id}>
-                      <td className="font-semibold" style={{ color: 'var(--primary-dark)', verticalAlign: 'middle' }}>
+                      <td className="font-semibold sticky-col" style={{ color: 'var(--primary-dark)', verticalAlign: 'middle' }}>
                         {comm.comunidad}
                       </td>
                       
@@ -270,6 +280,40 @@ export function RentabilidadManagement({ onBack }) {
                             {renderStatus(comm.id, 'contable')}
                           </div>
                         </div>
+                      </td>
+
+                      {/* Community Details */}
+                      <td style={{ textAlign: 'right', verticalAlign: 'middle' }}>
+                        {comm.bi !== undefined ? `${comm.bi.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €` : '0,00 €'}
+                      </td>
+                      <td style={{ textAlign: 'right', verticalAlign: 'middle' }}>
+                        {comm.iva !== undefined ? `${comm.iva.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €` : '0,00 €'}
+                      </td>
+                      <td style={{ textAlign: 'right', verticalAlign: 'middle', fontWeight: '600' }}>
+                        {comm.total !== undefined ? `${comm.total.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €` : '0,00 €'}
+                      </td>
+                      <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                        {comm.n_vecinos || 0}
+                      </td>
+                      <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                        <span className={`badge-type ${comm.garajes ? 'Gestor' : 'Contable'}`} style={{ padding: '2px 8px', fontSize: '11px' }}>
+                          {comm.garajes ? 'Sí' : 'No'}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                        <span className={`badge-type ${comm.piscina ? 'Gestor' : 'Contable'}`} style={{ padding: '2px 8px', fontSize: '11px' }}>
+                          {comm.piscina ? 'Sí' : 'No'}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                        <span className={`badge-type ${comm.pistas_deportivas ? 'Gestor' : 'Contable'}`} style={{ padding: '2px 8px', fontSize: '11px' }}>
+                          {comm.pistas_deportivas ? 'Sí' : 'No'}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                        <span className={`badge-type ${comm.sala_gourmet ? 'Gestor' : 'Contable'}`} style={{ padding: '2px 8px', fontSize: '11px' }}>
+                          {comm.sala_gourmet ? 'Sí' : 'No'}
+                        </span>
                       </td>
                     </tr>
                   ))}

@@ -1037,5 +1037,24 @@ body {
   }
 }
 
+/* Sticky column styles for horizontal scrolling tables */
+.sticky-col {
+  position: sticky;
+  left: 0;
+  background-color: #ffffff;
+  z-index: 2;
+  box-shadow: 2px 0 5px rgba(62, 39, 26, 0.05);
+}
+
+tr:hover td.sticky-col {
+  background-color: #fcfaf5 !important;
+}
+
+th.sticky-col {
+  background-color: var(--cream-light) !important;
+  z-index: 3;
+  box-shadow: 2px 0 5px rgba(62, 39, 26, 0.05);
+}
+
 
 
