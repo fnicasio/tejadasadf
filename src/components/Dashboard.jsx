@@ -4,11 +4,13 @@ import { auth } from '../firebase';
 import Logo from './Logo';
 import PersonalManagement from './PersonalManagement';
 import ComunidadesManagement from './ComunidadesManagement';
+import RentabilidadManagement from './RentabilidadManagement';
 import { 
   LogOut, 
   Building2, 
   Home,
-  UserCheck 
+  UserCheck,
+  TrendingUp
 } from 'lucide-react';
 
 export function Dashboard() {
@@ -76,7 +78,7 @@ export function Dashboard() {
               Selecciona el módulo de gestión que deseas operar.
             </p>
 
-            {/* Two Cards: Gestión de Personal and Gestión de Comunidades */}
+            {/* Three Cards: Gestión de Personal, Gestión de Comunidades and Rentabilidad Personal */}
             <div className="info-grid">
               <div 
                 className="info-item" 
@@ -109,6 +111,22 @@ export function Dashboard() {
                   Configuración e información de comunidades de vecinos, presupuestos de bases imponibles y equipamiento.
                 </p>
               </div>
+
+              <div 
+                className="info-item" 
+                style={{ 
+                  cursor: 'pointer', 
+                  border: '1.5px solid var(--cream-dark)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+                onClick={() => setCurrentView('rentabilidad')}
+              >
+                <TrendingUp className="info-item-icon" size={32} />
+                <h4 className="info-item-title" style={{ fontSize: '18px', marginTop: '10px' }}>Rentabilidad Personal</h4>
+                <p className="info-item-desc" style={{ fontSize: '14px', marginTop: '8px' }}>
+                  Asociación de gestores y contables a cada comunidad de vecinos para el control y análisis de rentabilidad.
+                </p>
+              </div>
             </div>
           </div>
         )}
@@ -119,6 +137,10 @@ export function Dashboard() {
 
         {currentView === 'comunidades' && (
           <ComunidadesManagement onBack={() => setCurrentView('home')} />
+        )}
+
+        {currentView === 'rentabilidad' && (
+          <RentabilidadManagement onBack={() => setCurrentView('home')} />
         )}
       </main>
 

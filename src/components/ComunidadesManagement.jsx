@@ -9,6 +9,7 @@ import {
   doc 
 } from 'firebase/firestore';
 import { db } from '../firebase';
+import { recalculatePersonalCount } from '../utils/dbUtils';
 import { 
   ArrowLeft, 
   Plus, 
@@ -247,8 +248,19 @@ export function ComunidadesManagement({ onBack }) {
   // CRUD Delete
   const handleDeleteConfirm = async () => {
     if (!deletingCommunity) return;
+    const oldGestorId = deletingCommunity.gestorId;
+    const oldContableId = deletingCommunity.contableId;
     try {
       await deleteDoc(doc(db, 'comunidades', deletingCommunity.id));
+      
+      // Update workload count for assigned staff
+      if (oldGestorId) {
+        await recalculatePersonalCount(oldGestorId);
+      }
+      if (oldContableId && oldContableId !== oldGestorId) {
+        await recalculatePersonalCount(oldContableId);
+      }
+
       setDeletingCommunity(null);
     } catch (err) {
       console.error("Error deleting community:", err);
