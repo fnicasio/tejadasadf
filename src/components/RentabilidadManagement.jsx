@@ -154,12 +154,10 @@ export function RentabilidadManagement({ onBack }) {
     return null;
   };
 
-  // Metrics calculations for the right sidebar placeholder card
-  const totalCount = comunidades.length;
-  const assignedGestorCount = comunidades.filter(c => !!c.gestorId).length;
-  const assignedContableCount = comunidades.filter(c => !!c.contableId).length;
-  const bothAssignedCount = comunidades.filter(c => !!c.gestorId && !!c.contableId).length;
-  const fillPercentage = totalCount > 0 ? Math.round((bothAssignedCount / totalCount) * 100) : 0;
+  // Summary Metrics calculations
+  const totalComunidades = comunidades.length;
+  const totalVecinos = comunidades.reduce((sum, c) => sum + (c.n_vecinos || 0), 0);
+  const totalFacturacion = comunidades.reduce((sum, c) => sum + (c.total || 0), 0);
 
   return (
     <div className="personal-panel w-full" style={{ animation: 'fadeIn 0.5s ease' }}>
@@ -323,73 +321,54 @@ export function RentabilidadManagement({ onBack }) {
           )}
         </div>
 
-        {/* Right Column (33% on desktop) - Placeholder Sidebar */}
+        {/* Right Column (33% on desktop) - Dashboard Summary */}
         <div className="rentabilidad-sidebar-placeholder">
           <div className="sidebar-card">
-            <div className="sidebar-card-header mb-4">
+            <div className="sidebar-card-header mb-6">
               <TrendingUp size={24} style={{ color: 'var(--gold-dark)' }} />
               <h3 className="font-serif text-lg font-bold m-0" style={{ color: 'var(--primary-medium)' }}>
-                Rentabilidad por Comunidad
+                Resumen de Control
               </h3>
             </div>
             
-            <p className="text-muted mb-4" style={{ fontSize: '14px', lineHeight: '1.5' }}>
-              En este módulo podrás vincular el personal encargado del seguimiento operativo (Gestor) y de la administración contable (Contable) de cada comunidad de vecinos.
-            </p>
+            <div className="sidebar-divider mb-6"></div>
 
-            <div className="sidebar-divider mb-4"></div>
-
-            {/* Quick Metrics */}
-            <h4 className="text-xs uppercase tracking-wide font-semibold text-muted mb-3">Métricas de Asignación</h4>
-            
-            <div className="metric-row flex justify-between items-center mb-3">
-              <span className="metric-label flex items-center gap-2 text-sm">
-                <Users size={14} style={{ color: 'var(--primary-light)' }} />
-                Comunidades Totales
-              </span>
-              <span className="metric-value font-bold" style={{ color: 'var(--primary-dark)' }}>{totalCount}</span>
-            </div>
-
-            <div className="metric-row flex justify-between items-center mb-3">
-              <span className="metric-label flex items-center gap-2 text-sm">
-                <UserCheck size={14} style={{ color: 'var(--primary-light)' }} />
-                Con Gestor Asignado
-              </span>
-              <span className="metric-value font-semibold text-sm" style={{ color: 'var(--primary-medium)' }}>
-                {assignedGestorCount} <span className="text-xs text-muted">({totalCount > 0 ? Math.round(assignedGestorCount/totalCount*100) : 0}%)</span>
-              </span>
-            </div>
-
-            <div className="metric-row flex justify-between items-center mb-4">
-              <span className="metric-label flex items-center gap-2 text-sm">
-                <Briefcase size={14} style={{ color: 'var(--primary-light)' }} />
-                Con Contable Asignado
-              </span>
-              <span className="metric-value font-semibold text-sm" style={{ color: 'var(--primary-medium)' }}>
-                {assignedContableCount} <span className="text-xs text-muted">({totalCount > 0 ? Math.round(assignedContableCount/totalCount*100) : 0}%)</span>
-              </span>
-            </div>
-
-            {/* Progress bar */}
-            <div className="progress-container mb-4">
-              <div className="flex justify-between items-center text-xs mb-1 font-medium">
-                <span>Asignación Completa</span>
-                <span>{fillPercentage}%</span>
+            {/* KPI Cards / Metrics */}
+            <div className="flex flex-col gap-6">
+              
+              <div className="metric-box flex items-center gap-4 p-4 rounded-xl" style={{ backgroundColor: 'var(--cream-light)', border: '1px solid var(--cream-dark)' }}>
+                <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(194, 157, 91, 0.15)', color: 'var(--gold-dark)', display: 'flex', alignItems: 'center' }}>
+                  <Users size={20} />
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-wide font-semibold text-muted mb-1">Total Comunidades</div>
+                  <div className="text-xl font-bold" style={{ color: 'var(--primary-dark)', fontFamily: 'var(--font-sans)' }}>{totalComunidades}</div>
+                </div>
               </div>
-              <div className="progress-bar-bg">
-                <div className="progress-bar-fill" style={{ width: `${fillPercentage}%` }}></div>
+
+              <div className="metric-box flex items-center gap-4 p-4 rounded-xl" style={{ backgroundColor: 'var(--cream-light)', border: '1px solid var(--cream-dark)' }}>
+                <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(90, 63, 47, 0.1)', color: 'var(--primary-light)', display: 'flex', alignItems: 'center' }}>
+                  <UserCheck size={20} />
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-wide font-semibold text-muted mb-1">Total Vecinos</div>
+                  <div className="text-xl font-bold" style={{ color: 'var(--primary-dark)', fontFamily: 'var(--font-sans)' }}>{totalVecinos}</div>
+                </div>
               </div>
-            </div>
 
-            <div className="sidebar-divider mb-4"></div>
-
-            <div className="alert alert-success m-0" style={{ background: 'rgba(194, 157, 91, 0.08)', border: '1px solid rgba(194, 157, 91, 0.15)', color: 'var(--primary-medium)', padding: '12px' }}>
-              <HelpCircle size={18} className="flex-shrink-0" style={{ color: 'var(--gold-dark)' }} />
-              <div style={{ fontSize: '12.5px', lineHeight: '1.4' }}>
-                <strong>Espacio Reservado:</strong> Próximamente se habilitarán en esta sección los costes imputados, rentabilidad neta de cada contrato y alertas de desviación presupuestaria.
+              <div className="metric-box flex items-center gap-4 p-4 rounded-xl" style={{ backgroundColor: 'var(--cream-light)', border: '1px solid var(--cream-dark)' }}>
+                <div className="p-3 rounded-lg" style={{ backgroundColor: 'rgba(54, 143, 92, 0.1)', color: 'var(--success)', display: 'flex', alignItems: 'center' }}>
+                  <TrendingUp size={20} style={{ color: 'var(--success)' }} />
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-wide font-semibold text-muted mb-1">Total Facturación</div>
+                  <div className="text-xl font-bold" style={{ color: 'var(--primary-dark)', fontFamily: 'var(--font-sans)', whiteSpace: 'nowrap' }}>
+                    {totalFacturacion.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                  </div>
+                </div>
               </div>
-            </div>
 
+            </div>
           </div>
         </div>
 
